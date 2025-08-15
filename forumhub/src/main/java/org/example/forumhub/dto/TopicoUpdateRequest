@@ -1,0 +1,9 @@
+package org.example.desafioforum.dto;
+import jakarta.validation.constraints.NotBlank;
+import org.example.desafioforum.model.StatusTopico;
+
+public record TopicoUpdateRequest(
+    @NotBlank String titulo,
+    @NotBlank String mensagem,
+    StatusTopico status 
+) {}

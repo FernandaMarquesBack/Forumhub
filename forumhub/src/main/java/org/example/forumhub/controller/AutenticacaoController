@@ -1,0 +1,41 @@
+package org.example.forumhub.controller;
+
+import jakarta.validation.Valid;
+import org.example.forumhub.dto.LoginDTO;
+import org.example.forumhub.dto.TokenDTO;
+import org.example.forumhub.service.TokenService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/login")
+public class AutenticacaoController {
+
+    private final AuthenticationManager authManager;
+    private final TokenService tokenService;
+
+    public AutenticacaoController(AuthenticationManager authManager,
+                                  TokenService tokenService) {
+        this.authManager = authManager;
+        this.tokenService = tokenService;
+    }
+
+    @PostMapping
+    public ResponseEntity<TokenDTO> efetuarLogin(
+        @RequestBody @Valid LoginDTO dados) {
+        var authToken = new UsernamePasswordAuthenticationToken(
+            dados.getLogin(), dados.getSenha());
+
+        try {
+            Authentication authentication = authManager.authenticate(authToken);
+            String jwt = tokenService.gerarToken(authentication);
+            return ResponseEntity.ok(new TokenDTO(jwt));
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(401).build();
+        }
+    }
+}

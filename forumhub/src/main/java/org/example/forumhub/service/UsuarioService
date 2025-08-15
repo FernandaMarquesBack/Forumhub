@@ -1,0 +1,26 @@
+package org.example.desafioforum.service;
+import org.example.desafioforum.model.Usuario;
+import org.example.desafioforum.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UsuarioService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    public void salvarUsuario(String username, String senha) {
+        String senhaCriptografada = passwordEncoder.encode(senha);
+
+        Usuario usuario = new Usuario();
+        usuario.setLogin(username); 
+        usuario.setSenha(senhaCriptografada);
+
+        usuarioRepository.save(usuario);
+    }
+}

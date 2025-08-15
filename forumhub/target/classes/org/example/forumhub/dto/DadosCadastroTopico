@@ -1,0 +1,7 @@
+package org.example.desafioforum.dto;
+public record DadosCadastroTopico(
+    String titulo,
+    String mensagem,
+    Long autorId,
+    Long cursoId
+) {}

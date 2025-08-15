@@ -1,0 +1,15 @@
+package org.example.desafioforum.controller;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/senha")
+public class SenhaController {
+
+    @GetMapping("/criptografar")
+    public String criptografar(@RequestParam String senha) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        return "Senha criptografada: " + encoder.encode(senha);
+    }
+}

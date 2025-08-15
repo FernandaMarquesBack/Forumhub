@@ -1,0 +1,39 @@
+package org.example.desafioforum.api;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
+import java.util.stream.Collectors;
+import java.util.Map;
+
+@RestControllerAdvice
+public class ApiExceptionHandler {
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrity(
+            DataIntegrityViolationException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("erro", "Tópico possui dependências e não pode ser excluído."));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationErrors(
+            MethodArgumentNotValidException ex) {
+
+        var errors = ex.getBindingResult()
+                       .getFieldErrors()
+                       .stream()
+                       .collect(Collectors.toMap(
+                           FieldError::getField,
+                           FieldError::getDefaultMessage
+                       ));
+
+        return ResponseEntity.badRequest().body(errors);
+    }
+}

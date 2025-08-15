@@ -1,0 +1,2 @@
+package org.example.desafioforum.dto;
+public record DadosTokenJWT(String token) {}

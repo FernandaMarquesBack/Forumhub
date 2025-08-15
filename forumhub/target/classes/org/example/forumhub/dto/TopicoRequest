@@ -1,0 +1,37 @@
+package org.example.desafioforum.dto;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.example.desafioforum.model.StatusTopico;
+
+public class TopicoRequest {
+
+    @NotBlank(message = "O título é obrigatório.")
+    private String titulo;
+
+    @NotBlank(message = "A mensagem é obrigatória.")
+    private String mensagem;
+
+    @NotNull(message = "O status do tópico é obrigatório.")
+    private StatusTopico status;
+
+    @NotNull(message = "O ID do autor é obrigatório.")
+    private Long autorId;
+
+    @NotNull(message = "O ID do curso é obrigatório.")
+    private Long cursoId;
+
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getMensagem() { return mensagem; }
+    public void setMensagem(String mensagem) { this.mensagem = mensagem; }
+
+    public StatusTopico getStatus() { return status; }
+    public void setStatus(StatusTopico status) { this.status = status; }
+
+    public Long getAutorId() { return autorId; }
+    public void setAutorId(Long autorId) { this.autorId = autorId; }
+
+    public Long getCursoId() { return cursoId; }
+    public void setCursoId(Long cursoId) { this.cursoId = cursoId; }
+}

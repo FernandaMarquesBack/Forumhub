@@ -1,0 +1,15 @@
+package org.example.desafioforum.controller;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+public abstract class ControllerBase {
+
+    protected String getUsuarioLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName(); // nome do usuário logado
+        }
+        return null;
+    }
+}

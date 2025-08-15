@@ -1,0 +1,129 @@
+package org.example.desafioforum.controller;
+import jakarta.validation.Valid;
+import org.example.desafioforum.dto.TopicoRequest;
+import org.example.desafioforum.dto.TopicoResponse;
+import org.example.desafioforum.model.Autor;
+import org.example.desafioforum.model.Curso;
+import org.example.desafioforum.model.Topico;
+import org.example.desafioforum.repository.AutorRepository;
+import org.example.desafioforum.repository.CursoRepository;
+import org.example.desafioforum.repository.TopicoRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/topicos")
+public class TopicoController {
+
+    private final TopicoRepository topicoRepository;
+    private final AutorRepository autorRepository;
+    private final CursoRepository cursoRepository;
+
+    public TopicoController(TopicoRepository topicoRepository,
+                            AutorRepository autorRepository,
+                            CursoRepository cursoRepository) {
+        this.topicoRepository = topicoRepository;
+        this.autorRepository = autorRepository;
+        this.cursoRepository = cursoRepository;
+    }
+
+
+    @GetMapping
+    public List<TopicoResponse> listar() {
+        List<Topico> topicos = topicoRepository.findAll();
+        return topicos.stream()
+                .map(t -> new TopicoResponse(
+                        t.getId(),
+                        t.getTitulo(),
+                        t.getMensagem(),
+                        t.getDataCriacao(),
+                        t.getStatus(),
+                        t.getAutor() != null ? t.getAutor().getNome() : null,
+                        t.getCurso() != null ? t.getCurso().getNome() : null
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TopicoResponse> detalhar(@PathVariable Long id) {
+        Optional<Topico> optTopico = topicoRepository.findById(id);
+        if (optTopico.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Topico t = optTopico.get();
+        TopicoResponse response = new TopicoResponse(
+                t.getId(),
+                t.getTitulo(),
+                t.getMensagem(),
+                t.getDataCriacao(),
+                t.getStatus(),
+                t.getAutor() != null ? t.getAutor().getNome() : null,
+                t.getCurso() != null ? t.getCurso().getNome() : null
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping
+    public ResponseEntity<?> criar(@RequestBody @Valid TopicoRequest request) {
+        if (topicoRepository.existsByTituloAndMensagem(request.getTitulo(), request.getMensagem())) {
+            return ResponseEntity.badRequest().body("Tópico com esse título e mensagem já existe");
+        }
+
+        Optional<Autor> autorOpt = autorRepository.findById(request.getAutorId());
+        Optional<Curso> cursoOpt = cursoRepository.findById(request.getCursoId());
+
+        if (autorOpt.isEmpty() || cursoOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Autor ou Curso não encontrado");
+        }
+
+        Topico topico = new Topico();
+        topico.setTitulo(request.getTitulo());
+        topico.setMensagem(request.getMensagem());
+        topico.setDataCriacao(LocalDateTime.now());
+        topico.setAutor(autorOpt.get());
+        topico.setCurso(cursoOpt.get());
+
+        topicoRepository.save(topico);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody @Valid TopicoRequest request) {
+        Optional<Topico> optTopico = topicoRepository.findById(id);
+        if (optTopico.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Optional<Autor> autorOpt = autorRepository.findById(request.getAutorId());
+        Optional<Curso> cursoOpt = cursoRepository.findById(request.getCursoId());
+        if (autorOpt.isEmpty() || cursoOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Autor ou Curso não encontrado");
+        }
+
+        Topico topico = optTopico.get();
+        topico.setTitulo(request.getTitulo());
+        topico.setMensagem(request.getMensagem());
+        topico.setAutor(autorOpt.get());
+        topico.setCurso(cursoOpt.get());
+
+        topicoRepository.save(topico);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        
+        if (!topicoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        topicoRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    
+}

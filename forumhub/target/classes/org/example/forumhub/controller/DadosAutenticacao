@@ -1,0 +1,2 @@
+package org.example.desafioforum.controller;
+public record DadosAutenticacao(String login, String senha) {}
